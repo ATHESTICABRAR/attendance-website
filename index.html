@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attendance System</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f2f2f2;
+        padding: 15px;
+    }
+    h1 {
+        text-align: center;
+        color: #1f2937;
+    }
+    .box {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .student {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #ddd;
+    }
+    .summary {
+        font-weight: bold;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+    }
+    .whatsapp {
+        background: #25D366;
+    }
+</style>
+</head>
+<body>
+
+<h1>CSE F Attendance</h1>
+
+<div class="box">
+    <p><b>Date:</b> <span id="date"></span></p>
+    <p><b>Time:</b> <span id="time"></span></p>
+</div>
+
+<div class="box" id="students"></div>
+
+<div class="box summary">
+    Present: <span id="present">0</span> |
+    Absent: <span id="absent">0</span> |
+    Percentage: <span id="percent">0%</span>
+</div>
+
+<button onclick="calculate()">Submit Attendance</button>
+<button class="whatsapp" onclick="shareWhatsApp()">Share Full Attendance on WhatsApp</button>
+
+<script>
+const studentList = [
+"AA","AB","AC","AD","AE","AF","AG","AH","AJ","AK","AL","AM",
+"AP","AR","AT","AU","AV","AW","AX","AY","AZ",
+"BA","BB","BD","BE","BF","BG","BH","BJ","BK","BL","BM","BN","BP","BQ","BT","BU","BV","BW","BX","BY","BZ",
+"CA","CB","CC","CD","CE","CF","CG","CH","CJ","CK","CL",
+"Z4","Z5","Z6","Z7","Z8","Z9",
+"LE-32","LE-33","LE-34","LE-35","LE-36","LE-37","LE-38"
+];
+
+const container = document.getElementById("students");
+
+studentList.forEach(s => {
+    container.innerHTML += `
+    <div class="student">
+        <span>${s}</span>
+        <input type="checkbox" class="check" value="${s}">
+    </div>`;
+});
+
+document.getElementById("date").innerText = new Date().toDateString();
+document.getElementById("time").innerText = new Date().toLocaleTimeString();
+
+function calculate() {
+    const checks = document.querySelectorAll(".check");
+    let presentList = [];
+    let absentList = [];
+
+    checks.forEach(c => {
+        if (c.checked) {
+            presentList.push(c.value);
+        } else {
+            absentList.push(c.value);
+        }
+    });
+
+    let total = checks.length;
+    let present = presentList.length;
+    let absent = absentList.length;
+    let percent = ((present / total) * 100).toFixed(2);
+
+    document.getElementById("present").innerText = present;
+    document.getElementById("absent").innerText = absent;
+    document.getElementById("percent").innerText = percent + "%";
+
+    window.presentList = presentList;
+    window.absentList = absentList;
+}
+
+function shareWhatsApp() {
+    if (!window.presentList) {
+        alert("Please submit attendance first");
+        return;
+    }
+
+    const date = document.getElementById("date").innerText;
+    const present = document.getElementById("present").innerText;
+    const absent = document.getElementById("absent").innerText;
+    const percent = document.getElementById("percent").innerText;
+
+    const message =
+`CSE F Attendance
+Date: ${date}
+
+Present (${present}):
+${window.presentList.join(", ")}
+
+Absent (${absent}):
+${window.absentList.join(", ")}
+
+Attendance Percentage: ${percent}`;
+
+    const url = "https://wa.me/?text=" + encodeURIComponent(message);
+    window.open(url, "_blank");
+}
+</script>
+
+</body>
+</html>
