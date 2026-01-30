@@ -2,143 +2,161 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Attendance System</title>
+
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f2f2f2;
-        padding: 15px;
-    }
-    h1 {
-        text-align: center;
-        color: #1f2937;
-    }
-    .box {
-        background: white;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
-    .student {
-        display: flex;
-        justify-content: space-between;
-        padding: 6px 0;
-        border-bottom: 1px solid #ddd;
-    }
-    .summary {
-        font-weight: bold;
-    }
-    button {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        background: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-    }
-    .whatsapp {
-        background: #25D366;
-    }
+body { font-family: Arial,sans-serif; background: #ffe6f0; padding: 15px; }
+h1 { text-align: center; font-size: 28px; color:#b91c75; margin-bottom:15px; }
+.box { background:#fff0f6; padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 4px 10px rgba(0,0,0,0.08);}
+.student { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f5c2e7; font-size:18px; font-weight:600; color:#9d174d; }
+.student:last-child{border-bottom:none;}
+input[type="checkbox"]{width:22px;height:22px;transform:scale(1.2);}
+.summary {text-align:center;font-size:20px;font-weight:bold;line-height:1.6; color:#b91c75;}
+.summary span{color:#ec4899;font-size:22px;}
+button {width:100%;padding:14px;margin-top:10px;background:#ec4899;color:white;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;}
+button:hover{opacity:0.9;}
+.whatsapp{background:#ff3399;}
+.select-btns{display:flex;gap:10px;margin-bottom:10px;}
+.select-btns button{flex:1;width:auto; background:#f9a8d4; color:#7e22ce;}
+.select-btns button:hover{opacity:0.9;}
 </style>
 </head>
 <body>
 
-<h1>CSE F Attendance</h1>
+<h1>📋 CSE F Attendance</h1>
+
+<div class="box info">
+<p><b>Date:</b> <span id="date"></span></p>
+<p><b>Time:</b> <span id="time"></span></p>
+<p><b>Current Session:</b> <span id="session-name"></span></p>
+</div>
 
 <div class="box">
-    <p><b>Date:</b> <span id="date"></span></p>
-    <p><b>Time:</b> <span id="time"></span></p>
+<div class="select-btns">
+<button onclick="selectAll()">Select All</button>
+<button onclick="deselectAll()">Remove All</button>
 </div>
-
-<div class="box" id="students"></div>
+<div id="students"></div>
+</div>
 
 <div class="box summary">
-    Present: <span id="present">0</span> |
-    Absent: <span id="absent">0</span> |
-    Percentage: <span id="percent">0%</span>
+Present: <span id="present">0</span><br>
+Absent: <span id="absent">0</span><br>
+Percentage: <span id="percent">0%</span>
 </div>
 
-<button onclick="calculate()">Submit Attendance</button>
-<button class="whatsapp" onclick="shareWhatsApp()">Share Full Attendance on WhatsApp</button>
+<button onclick="calculate()">✅ Submit Attendance</button>
+<button class="whatsapp" onclick="shareWhatsApp()">📤 Share on WhatsApp</button>
 
 <script>
-const studentList = [
-"AA","AB","AC","AD","AE","AF","AG","AH","AJ","AK","AL","AM",
-"AP","AR","AT","AU","AV","AW","AX","AY","AZ",
-"BA","BB","BD","BE","BF","BG","BH","BJ","BK","BL","BM","BN","BP","BQ","BT","BU","BV","BW","BX","BY","BZ",
-"CA","CB","CC","CD","CE","CF","CG","CH","CJ","CK","CL",
-"Z4","Z5","Z6","Z7","Z8","Z9",
-"LE-32","LE-33","LE-34","LE-35","LE-36","LE-37","LE-38"
+// Students list with full names
+const students = [
+"24Q91A05AA Bollam Yashwanth","24Q91A05AB C Harthik","24Q91A05AC Ch Praveen Raju","24Q91A05AD Challa Rishitha",
+"24Q91A05AE Chinnolla Pravallika","24Q91A05AF Dage Mallika","24Q91A05AG Daravath Sravani","24Q91A05AH Dasari Kiran",
+"24Q91A05AJ Deeravath Jagadish Nayak","24Q91A05AK Dheeravath Tinku","24Q91A05AL G Keerthi","24Q91A05AM Gorribanda Anitha",
+"24Q91A05AP Gudam Akshaya","24Q91A05AR Jummula Abishai","24Q91A05AT Jeela Alekhya","24Q91A05AU K Sai Chandra",
+"24Q91A05AV Kalyankar Saiteja","24Q91A05AW Kanikatla Nishad","24Q91A05AX Karipe Praneeth","24Q91A05AY Katigher Vaagdevi",
+"24Q91A05AZ Kola Aparna","24Q91A05BA Konda Lakshmi","24Q91A05BB Kota Nandini","24Q91A05BC Kota Shashanth","24Q91A05BD Kotagiri Rakesh",
+"24Q91A05BE Kukkarikalla Kalyani","24Q91A05BF Lalagari Harika","24Q91A05BG Madunagula Jyoshna","24Q91A05BJ Mandru Susun",
+"24Q91A05BK Maryada Keerthi","24Q91A05BL Medi Deepthi Sree","24Q91A05BM Mekala Hayanth","24Q91A05BN Miriyala V S D S Mukunda Sharma",
+"24Q91A05BP Mohammad Abrar","24Q91A05BQ Mohammad Saif Parvez","24Q91A05BT Nomula Bhaskar","24Q91A05BU Nuthanapati Navadeep",
+"24Q91A05BV P Vinay Tagore Goud","24Q91A05BW Paladugu Signari","24Q91A05BX Peddinti Prashanth Kumar","24Q91A05BY Rampalli Manoj Kumar",
+"24Q91A05BZ Rayala Karthikeya","24Q91A05CA Shaik Behad Sayanaa","24Q91A05CB Shaik Nishat","24Q91A05CC Singarapu Prem",
+"24Q91A05CD Sunkara Mohan Anji Reddy","24Q91A05CE Talari Raj Kumar","24Q91A05CF Tejavath Arun","24Q91A05CG Thumkunta Sai Pavan Goud",
+"24Q91A05CH V Charitha","24Q91A05CJ Vankudoth Sathish","24Q91A05CK Yabnod Shivprasad","24Q91A05CL Yedla Gnanavyshnavi",
+"24Q91A05Z4 Anumala Sidvitha","24Q91A05Z5 Askani Sinduja","24Q91A05Z6 Avadhanam Parthiv Kumar","24Q91A05Z7 Avula Karthikeya",
+"24Q91A05Z9 Banoth Sandeep","25Q95A0532 Jagarla Anshith","25Q95A0533 Manda Meghana","25Q95A0534 Nakka Surya Narayana",
+"25Q95A0535 Putukam Maruthi","25Q95A0536 Ramavath Yashwanth","25Q95A0537 Sirigiri Lavanya","25Q95A0538 Rebba Manaswini"
 ];
 
 const container = document.getElementById("students");
-
-studentList.forEach(s => {
-    container.innerHTML += `
-    <div class="student">
-        <span>${s}</span>
-        <input type="checkbox" class="check" value="${s}">
-    </div>`;
+students.forEach(s=>{
+    container.innerHTML+=`<div class="student"><span>${s}</span><input type="checkbox" class="check" value="${s}"></div>`;
 });
 
-document.getElementById("date").innerText = new Date().toDateString();
-document.getElementById("time").innerText = new Date().toLocaleTimeString();
+// Time & exact session
+function updateTime() {
+    const now = new Date();
+    document.getElementById("date").innerText = now.toDateString();
+    document.getElementById("time").innerText = now.toLocaleTimeString();
 
-function calculate() {
-    const checks = document.querySelectorAll(".check");
-    let presentList = [];
-    let absentList = [];
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    let session = "";
 
-    checks.forEach(c => {
-        if (c.checked) {
-            presentList.push(c.value);
-        } else {
-            absentList.push(c.value);
-        }
-    });
-
-    let total = checks.length;
-    let present = presentList.length;
-    let absent = absentList.length;
-    let percent = ((present / total) * 100).toFixed(2);
-
-    document.getElementById("present").innerText = present;
-    document.getElementById("absent").innerText = absent;
-    document.getElementById("percent").innerText = percent + "%";
-
-    window.presentList = presentList;
-    window.absentList = absentList;
-}
-
-function shareWhatsApp() {
-    if (!window.presentList) {
-        alert("Please submit attendance first");
-        return;
+    // Morning: 9:30 - 12:00
+    if ((hour === 9 && minute >= 30) || (hour === 10) || (hour === 11) || (hour === 12 && minute === 0)) {
+        session = "Morning (9:30 - 12:00)";
+    } 
+    // Afternoon: 12:00 - 17:00
+    else if ((hour === 12 && minute > 0) || (hour > 12 && hour < 17) || (hour === 17 && minute === 0)) {
+        session = "Afternoon (12:01 - 5:00)";
+    } 
+    // Night: 17:00 - 9:29
+    else {
+        session = "Night (5:00 - 9:29)";
     }
 
-    const date = document.getElementById("date").innerText;
-    const present = document.getElementById("present").innerText;
-    const absent = document.getElementById("absent").innerText;
-    const percent = document.getElementById("percent").innerText;
-
-    const message =
-`CSE F Attendance
-Date: ${date}
-
-Present (${present}):
-${window.presentList.join(", ")}
-
-Absent (${absent}):
-${window.absentList.join(", ")}
-
-Attendance Percentage: ${percent}`;
-
-    const url = "https://wa.me/?text=" + encodeURIComponent(message);
-    window.open(url, "_blank");
+    document.getElementById("session-name").innerText = session;
 }
-</script>
+updateTime();
+setInterval(updateTime,1000);
 
+// Select / Deselect all
+function selectAll(){ document.querySelectorAll(".check").forEach(c=>c.checked=true);}
+function deselectAll(){ document.querySelectorAll(".check").forEach(c=>c.checked=false);}
+
+// Calculate attendance
+function calculate(){
+    const checks = document.querySelectorAll(".check");
+    let presentList=[], absentList=[];
+    checks.forEach(c=>c.checked?presentList.push(c.value):absentList.push(c.value));
+    const total = checks.length;
+    const present = presentList.length;
+    const absent = absentList.length;
+    const percent = ((present/total)*100).toFixed(2);
+
+    document.getElementById("present").innerText=present;
+    document.getElementById("absent").innerText=absent;
+    document.getElementById("percent").innerText=percent+"%";
+
+    window.presentList=presentList;
+    window.absentList=absentList;
+}
+
+// WhatsApp share (only last 2 digits)
+function shareWhatsApp(){
+    if(!window.presentList){ 
+        alert("Submit attendance first"); 
+        return;
+    }
+    
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); 
+    const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    const session = document.getElementById("session-name").innerText;
+
+    const totalStudents = window.presentList.length + window.absentList.length;
+    const percent = ((window.presentList.length / totalStudents) * 100).toFixed(2);
+
+    // Only last 2 digits of hall ticket for WhatsApp
+    const presentShort = window.presentList.map(s => s.split(" ")[0].slice(-2));
+    const absentShort = window.absentList.map(s => s.split(" ")[0].slice(-2));
+
+    const message = 
+`II CSE F Attendance ${dateStr}
+${session} ${timeStr}
+
+Present (${window.presentList.length}/${totalStudents}) - ${percent}%:
+${presentShort.join(", ")}
+
+Absent (${window.absentList.length}):
+${absentShort.join(", ")}`;
+
+    window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
+}
+
+</script>
 </body>
 </html>
